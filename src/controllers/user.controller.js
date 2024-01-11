@@ -10,8 +10,8 @@ const generateAccessAndRefreshToken = async (userId) =>{
     try{
 
        const user = await User.findById(userId);
-       const accessToken = user.generateRefreshToken();
-       const refreshToken = user.generateAccessToken();
+       const accessToken = user.generateAccessToken();
+       const refreshToken = user.generateRefreshToken();
 
        user.refreshToken = refreshToken;
        await user.save({validateBeforeSave: false});
@@ -123,7 +123,7 @@ const loginUser = asyncHandler(async (req,res) => {
    });
    
    if(!user){
-      throw new ApiError(404,"Usre does not exists");
+      throw new ApiError(404,"User does not exists");
    }
 
     //   compare the password
@@ -137,7 +137,7 @@ const loginUser = asyncHandler(async (req,res) => {
    const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id);
 
    
-   const loggedInUser = User.findById(user._id).select("-password -refreshToken");
+   const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
    //send cookies
 
@@ -158,7 +158,8 @@ const loginUser = asyncHandler(async (req,res) => {
                   accessToken, 
                   refreshToken
                },
-               "User logged In Successfully")
+               "User logged In Successfully"
+            )
           );
 });
 
@@ -169,7 +170,7 @@ const logoutUser  = asyncHandler(async (req,res) => {
       req.user._id,
       {
          $set: {
-            refreshToken: undefined
+            refreshToken: ""
          }
       },
       {
