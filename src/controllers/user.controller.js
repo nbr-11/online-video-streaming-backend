@@ -5,7 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { Otp } from "../models/otp.model.js";
-import otpGenerator from "otp-generator"
+import otpGenerator from "otp-generator";
 
 const generateAccessAndRefreshToken = async (userId) =>{
     try{
@@ -66,10 +66,12 @@ const generateOtp = asyncHandler( async (req,res) => {
 const registerUser = asyncHandler(async (req,res) => {
 
     // get user details from frontend
-    const {fullName, email, username, password} = req.body;
+    const {fullName, email, username, password, otp} = req.body;
+
+    
     
     // validations
-    if([fullName,email,username,password].some((field)=>{
+    if([fullName,email,username,password, otp].some((field)=>{
        return field?.trim() === ""
     })){
 
@@ -88,7 +90,17 @@ const registerUser = asyncHandler(async (req,res) => {
      if(existingUser){
         throw new ApiError(409,"username or email is already registered")
      }
+     // check if the otp is correct 
 
+     const otpDocument = await Otp.find({email}).sort({createdAt: -1}).limit(1);
+
+     if(!otpDocument){
+         throw new ApiError(400,"Otp has expired");
+     }
+
+     if(otpDocument?.otp !== otp){
+         throw new ApiError(401, "Otp is invalid");
+     }
     
     // check for images, check for avatar
 

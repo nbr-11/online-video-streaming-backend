@@ -1,6 +1,5 @@
 import mongoose, {Schema} from "mongoose";
 import { mailSender } from "../utils/mailSender.js";
-import SendmailTransport from "nodemailer/lib/sendmail-transport/index.js";
 import { ApiError } from "../utils/ApiError.js";
 
 const otpSchmea = new Schema(
@@ -19,7 +18,7 @@ const otpSchmea = new Schema(
             type: Date,
             required:true,
             default: Date.now,
-            expires: "1m",
+            expires: "10m",
         }
 
     }
@@ -37,7 +36,7 @@ otpSchmea.pre("save", async function (next) {
             <h2>${this.otp}</h2>
             <br/>
             <br/>
-            <>Please note that this otp will expire in 2 minutes</>
+            <h3>Please note that this otp will expire in 2 minutes</h3>
         `
         const sentMailResponse = await mailSender(this.email, "Email verification",body);
 
