@@ -98,7 +98,7 @@ const registerUser = asyncHandler(async (req,res) => {
          throw new ApiError(400,"Otp has expired");
      }
 
-     if(otpDocument?.otp !== otp){
+     if(otpDocument?.[0]?.otp !== otp){
          throw new ApiError(401, "Otp is invalid");
      }
     
