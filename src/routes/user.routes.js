@@ -2,6 +2,7 @@ import { Router } from "express";
 import { loginUser, logoutUser, refreshAccessToken, registerUser } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { generateOtp } from "../controllers/user.controller.js";
 
 const router = Router();
 
@@ -19,6 +20,7 @@ router.route("/register").post(
     registerUser
 )
 
+router.route('/register/generate-otp').post(generateOtp)
 router.route("/login").post(loginUser);
 
 

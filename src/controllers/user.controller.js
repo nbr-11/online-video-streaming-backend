@@ -4,7 +4,8 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
-
+import { Otp } from "../models/otp.model.js";
+import otpGenerator from "otp-generator"
 
 const generateAccessAndRefreshToken = async (userId) =>{
     try{
@@ -23,6 +24,44 @@ const generateAccessAndRefreshToken = async (userId) =>{
     }
 }
 
+const generateOtp = asyncHandler( async (req,res) => {
+      
+   // extract details from req.body
+
+   const {email} = req.body;
+
+   //basic validation
+
+   if(!email){
+      throw new ApiError(400,"email is required");
+   }
+
+   //generate an otp
+   const otp = otpGenerator.generate(6);
+
+   //create an entry in the database
+
+   const generatedOtp = await Otp.create({
+      email,
+      otp
+   })
+  
+
+   if(!generatedOtp){
+      throw new ApiError(500, "Something went wrong while generating the otp");
+   }
+
+   return res 
+          .status(200)
+          .json(
+               new ApiResponse(
+                  200,
+                  {},
+                  "Otp generated successfully",
+               )
+          );
+
+});
 
 const registerUser = asyncHandler(async (req,res) => {
 
@@ -421,6 +460,7 @@ export {
    getCurrentUser,
    updateAccountDetails,
    updateUserAvatar,
-   updateUserCoverImage
+   updateUserCoverImage,
+   generateOtp
 };
 
