@@ -1,4 +1,5 @@
 import {v2 as cloudinary} from "cloudinary";
+import cluster from "cluster";
 import fs from "fs";
        
 cloudinary.config({ 
@@ -37,4 +38,19 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 }
 
-export {uploadOnCloudinary};
+
+const deleteFromCLoudinary = async(cloudinaryUrl) => {
+  try{
+
+    if(!cloudinaryUrl) return null;
+
+    const response = await cloudinary.uploader.destroy(cloudinaryUrl);
+
+    return response;
+
+  } catch(error){
+    return null
+  }
+};
+
+export {uploadOnCloudinary, deleteFromCLoudinary};
