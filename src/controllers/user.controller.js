@@ -90,6 +90,7 @@ const registerUser = asyncHandler(async (req,res) => {
      if(existingUser){
         throw new ApiError(409,"username or email is already registered")
      }
+     
      // check if the otp is correct 
 
      const otpDocument = await Otp.find({email}).sort({createdAt: -1}).limit(1);
