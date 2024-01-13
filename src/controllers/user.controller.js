@@ -1,7 +1,7 @@
 import {asyncHandler} from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCLoudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { Otp } from "../models/otp.model.js";
@@ -345,9 +345,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateAccountDetails = asyncHandler(async (req,res) => {
 
-   const {fullName, email} = req.body;
+   const {fullName} = req.body;
 
-   if(!fullName && !email){
+   if(!fullName){
       throw new ApiError(406, "All fields are required")
    }
 
@@ -356,8 +356,7 @@ const updateAccountDetails = asyncHandler(async (req,res) => {
                         req.user?._id,
                         {
                            $set: {
-                              fullName,
-                              email
+                              fullName
                            }
                         },
                         {
@@ -377,6 +376,52 @@ const updateAccountDetails = asyncHandler(async (req,res) => {
                )
           );
 
+});
+
+const updateEmail = asyncHandler(async (req,res) => {
+   const {email,otp} = req.body;
+
+   if(!email){
+      throw new ApiError(406, "email is required");
+   }
+
+   const otpInDB =  await Otp.find({email}).sort({createdAt:-1}).limit(1);
+
+   if(!otpInDB){
+      throw new ApiError(400, "Otp has expired");
+   }
+
+   if(otpInDB?.otp !== otp){
+      throw new ApiError(403,"Inavlid otp");
+   }
+
+   const user = await User
+                     .findByIdAndDelete(
+                        req.user?._id,
+                        {
+                           $set: {
+                              email,
+                           }
+                        },
+                        {
+                           new: true,
+                        }
+                     );
+   
+   if(!user){
+      throw new ApiError(500,"Something went wrong while updating the user in DB");
+   }
+   
+   return res 
+          .status(200)
+          .json(
+            new ApiResponse(
+               200,
+               {},
+               "Email updated",
+            )
+          );
+
 })
 
 const updateUserAvatar = asyncHandler(async (req,res) => {
@@ -387,11 +432,15 @@ const updateUserAvatar = asyncHandler(async (req,res) => {
       throw new ApiError(400, "Avtar file is missing");
    }
 
+   //uploading avatar on cloudianry
    const avatar = await uploadOnCloudinary(avatarLocalFilePath);
    
    if(!avatar.url){
       throw new ApiError(500, "Error while uploading the avatar on cloudinary");
    }
+
+   //deleting previous avatar image
+   await deleteFromCLoudinary(req.user?.avatar);
 
    const user = await User
                      .findByIdAndUpdate(
@@ -425,15 +474,19 @@ const updateUserCoverImage = asyncHandler(async (req,res) => {
 
    const coverImageLocalFilePath = req.file?.path;
 
-   if(!coverImageFilePath){
+   if(!coverImageLocalFilePath){
       throw new ApiError(400, "CoverImage file is missing");
    }
 
+   //uploading new image on cloudinary
    const coverImage = await uploadOnCloudinary(coverImageLocalFilePath);
    
    if(!coverImage.url){
       throw new ApiError(500, "Error while uploading the coverImage on cloudinary");
    }
+
+   //delete the previous coverImage form cloudinary
+   await deleteFromCLoudinary(req.user?.coverImage);
 
    const user = await User
                      .findByIdAndUpdate(

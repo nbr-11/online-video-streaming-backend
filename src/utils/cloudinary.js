@@ -1,5 +1,4 @@
 import {v2 as cloudinary} from "cloudinary";
-import cluster from "cluster";
 import fs from "fs";
        
 cloudinary.config({ 
@@ -7,6 +6,7 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY, 
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
 
 
 const uploadOnCloudinary = async (localFilePath) => {
@@ -44,7 +44,12 @@ const deleteFromCLoudinary = async(cloudinaryUrl) => {
 
     if(!cloudinaryUrl) return null;
 
-    const response = await cloudinary.uploader.destroy(cloudinaryUrl);
+    //extracting the publicId from the url
+    const temp = cloudinaryUrl.split("/");
+    const publicId = temp[temp.length-1].split(".")[0];
+
+    //deleting the media from cloudinary
+    const response = await cloudinary.uploader.destroy(publicId);
 
     return response;
 
