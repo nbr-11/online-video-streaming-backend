@@ -655,6 +655,21 @@ const getWatchHistory =  asyncHandler(async (req, res) => {
 });
 
 
+// const deleteUserAccount = asyncHandler(async (req,res) => {
+//    // verify the otp
+
+
+//    // delete all the videos owned by user
+
+
+//    // delete the user
+
+//    // clear cookies 
+
+//    // send the response
+// })
+
+
 
 export {
    registerUser,
@@ -668,6 +683,7 @@ export {
    updateUserCoverImage,
    generateOtp,
    updateEmail,
+   getUserChannelProfile,
    getWatchHistory,
 };
 
