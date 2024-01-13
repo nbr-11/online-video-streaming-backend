@@ -59,3 +59,4 @@ const deleteFromCLoudinary = async(cloudinaryUrl) => {
 };
 
 export {uploadOnCloudinary, deleteFromCLoudinary};
+
