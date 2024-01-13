@@ -86,7 +86,7 @@ router
 .get(verifyJWT, getUserChannelProfile);
 
 router
-.route('/history')
+.route('/watch-history')
 .get(verifyJWT,getWatchHistory);
 
 

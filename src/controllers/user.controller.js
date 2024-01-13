@@ -251,7 +251,7 @@ const logoutUser  = asyncHandler(async (req,res) => {
 
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-
+   
    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
    if(!incomingRefreshToken) {
@@ -274,7 +274,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         throw new ApiError(401,"Refresh token exprired or used ");
      }
   
-     const {accessToken, newRefreshToken} = await generateAccessAndRefreshToken(user?._id);
+     const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user?._id);
   
      const options = {
         httpOnly: true,
@@ -290,7 +290,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
                  200,
                  {
                     accessToken,
-                    refreshToken:newRefreshToken,
+                    refreshToken,
                  },
                  "Access token refreshed"
               )
@@ -392,12 +392,12 @@ const updateEmail = asyncHandler(async (req,res) => {
       throw new ApiError(400, "Otp has expired");
    }
 
-   if(otpInDB?.otp !== otp){
+   if(otpInDB?.[0]?.otp !== otp){
       throw new ApiError(403,"Inavlid otp");
    }
 
    const user = await User
-                     .findByIdAndDelete(
+                     .findByIdAndUpdate(
                         req.user?._id,
                         {
                            $set: {
@@ -653,6 +653,7 @@ const getWatchHistory =  asyncHandler(async (req, res) => {
             )
           );
 });
+
 
 
 // const deleteUserAccount = asyncHandler(async (req,res) => {
