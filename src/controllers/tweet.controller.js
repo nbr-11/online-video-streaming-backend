@@ -162,18 +162,42 @@ const updateTweet = asyncHandler(async (req, res) => {
 })
 
 const deleteTweet = asyncHandler(async (req, res) => {
-    //TODO: delete tweet
 
     //extract the details
+    const {tweetId} = req.params;
 
     //validate the details
 
+    if(!tweetId){
+        throw new ApiError(400,"tweetId");
+    }
+
     //check the ownership 
 
+    const tweet = await Tweet.findById(tweetId);
+
+    if(!tweet.owner.equals(req.user._id)){     
+        throw new ApiError(403,"You are unauthorized");
+    }
 
     //delete the tweet
 
+    const deletedTweet = await Tweet.findByIdAndDelete(tweetId);
+
+    //send the response;
+
+    return res 
+           .status(200)
+           .json(
+                new ApiResponse(
+                    200,
+                    deletedTweet,
+                    "Todo deleted successfully"
+                )
+           );
+
 });
+
 
 
 export {
