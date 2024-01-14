@@ -11,7 +11,7 @@ const router  = express.Router();
 router.route('/togglevideolike/:videoId').post(verifyJWT, toggleVideoLike);
 router.route('/togglecommentlike/:commentId').post(verifyJWT, toggleCommentLike);
 router.route('/toggletweetlike/:tweetId').post(verifyJWT, toggleTweetLike);
-router.route('/getlikedvideos').post(verifyJWT, toggleTweetLike);
+router.route('/getlikedvideos').get(verifyJWT, toggleTweetLike);
 
 
 export default router;

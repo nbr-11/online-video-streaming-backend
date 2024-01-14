@@ -4,9 +4,11 @@ import {verifyJWT} from "../middlewares/auth.middleware.js"
 
 const router = express.Router();
 
-router.route("/getvideocomments").get(verifyJWT,getVideoComments);
-router.route("/addcomment").get(verifyJWT,addComment);
-router.route("/updatecomment/:commentId").get(verifyJWT,updateComment);
-router.route("/deletecomment/:commentId").get(verifyJWT,deleteComment);
+router.route("/getvideocomments/:videoId").get(verifyJWT,getVideoComments);
+router.route("/addcomment/:videoId").post(verifyJWT,addComment);
+router.route("/updatecomment/:commentId").post(verifyJWT,updateComment);
+router.route("/deletecomment/:commentId").delete(verifyJWT,deleteComment);
 
 export default router;
+
+
