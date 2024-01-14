@@ -10,6 +10,41 @@ import { Like } from "../models/like.model.js"
 
 
 
+
+const getAllVideo = asyncHandler(async (req, res) => {
+     
+    const {page=1,limit=10} = req.query;
+
+    const options ={
+        page,
+        limit
+    }
+
+    const aggregator = Video.aggregate([
+        {
+            $match:{
+                title:{
+                    $exists: true,
+                }
+            }
+        }
+    ]);
+
+    const response = await Video.aggregatePaginate(aggregator,options);
+
+    return res 
+           .status(200)
+           .json(
+                new ApiResponse(
+                    200,
+                    response,
+                    "videos fetched successfully"
+                )
+           )
+
+
+});
+
 const getAllVideosOfUser = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query="", sortBy="createdAt", sortType=1, userId } = req.query
    
@@ -378,8 +413,9 @@ const deleteVideo = asyncHandler(async (req, res) => {
             )
            )
 
+});
 
-})
+
 
 export {
     getAllVideosOfUser,
@@ -388,6 +424,7 @@ export {
     updateVideo,
     deleteVideo,
     togglePublishStatus,
-    updateVideoThumbnail
+    updateVideoThumbnail,
+    getAllVideo,
 }
 
