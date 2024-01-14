@@ -9,15 +9,52 @@ import { Comment } from "../models/comment.model.js"
 import { Like } from "../models/like.model.js"
 
 
-const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
-    //TODO: get all videos based on query, sort, pagination
 
-    //query will be the title using the $in
+const getAllVideosOfUser = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query="", sortBy="createdAt", sortType=1, userId } = req.query
+   
+    if(!userId){
+        throw new ApiError(400,"user is required");
+    }
 
-    // here we will use aggegate paginate
+    const aggregator = Video.aggregate([
+        {
+           $match:{
+                owner: new mongoose.Types.ObjectId("65a2693f938a7fd010d0ee92"),  
+                title: {
+                    $regex: query,
+                    $options: "i"
+                }
+           },
+           
+        },
+        {
+            $sort:{
+                [sortBy]:Number(sortType),
+           } 
+        }
+        
+    ]);
+
+    const options = {
+        page,
+        limit
+    }
+
+    const response = await Video.aggregatePaginate(aggregator,options);
+
+   
+    return res 
+           .status(200)
+           .json(
+             new ApiResponse(
+                200,
+                response,
+                "The "
+             )
+           )
     
-})
+});
 
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description} = req.body
@@ -345,7 +382,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
 })
 
 export {
-    getAllVideos,
+    getAllVideosOfUser,
     publishAVideo,
     getVideoById,
     updateVideo,
