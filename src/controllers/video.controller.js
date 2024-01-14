@@ -266,7 +266,41 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: delete video
 
-})
+    if(!videoId){
+        throw new ApiError(401,"videoId is required")
+    }
+    if(!mongoose.isValidObjectId(videoId)){
+        throw new ApiError(40,"videoId is invalid");
+    }
+
+    //check for the ownership
+
+    const video  = await Video.findById(videoId);
+
+    if(!video){
+        throw new ApiError(404,"Video does not exists");
+    }
+
+    if(!video._id.equals(req.user._id)){
+        throw new ApiError(403,"You are authorized for this request");
+    }
+
+    video.isPublished = !video.isPublished;
+
+    video.save({validateBeforeSave: false});
+    
+    return res 
+           .status(200)
+           .json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "Video isPublished toggled"
+                )
+           );
+    
+
+});
 
 const deleteVideo = asyncHandler(async (req, res) => {
 
