@@ -157,6 +157,26 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                     $exists: true,
                 }
             }
+        },
+        {
+            $lookup:{
+                from: "videos",
+                localField:"video",
+                foreignField:"_id",
+                as:"video",
+            }
+        },
+        {
+            $addFields:{
+                video:{
+                    $first:"$video"
+                }
+            }
+        },
+        {
+            $project:{
+                video:1
+            }
         }
     ]);
 

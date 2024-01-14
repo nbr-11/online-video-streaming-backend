@@ -27,7 +27,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
    const videoComment = Comment.aggregate([
         {
             $match:{
-                video:videoId
+                video: new mongoose.Types.ObjectId(videoId)
             }
         }
     ]);
@@ -110,7 +110,7 @@ const updateComment = asyncHandler(async (req, res) => {
 
     const comment = await Comment.findById(commentId);
      
-    if(!req.user._id.equals(comment._id)){
+    if(!req.user._id.equals(comment.owner)){
         throw new ApiError(403,"You are not authorized to update this comment");
     }
 
@@ -159,9 +159,9 @@ const deleteComment = asyncHandler(async (req, res) => {
 
     //check for the ownerShip
 
-    const comment = await Comment.find(commentId);
+    const comment = await Comment.findById(commentId);
 
-    if(!req.user._id.equals(comment._id)){
+    if(!req.user._id.equals(comment.owner)){
         throw new ApiError(403,"You are not authorized to delete this deleteComment");
     }
 

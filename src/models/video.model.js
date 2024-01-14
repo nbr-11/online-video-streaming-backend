@@ -1,5 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
+import {mailSender} from "../utils/mailSender.js"
+import { User } from "./user.model.js";
 
 const videoSchema = new Schema(
     {
@@ -42,5 +44,23 @@ const videoSchema = new Schema(
 )
 
 videoSchema.plugin(mongooseAggregatePaginate); //allow us to write aggrgation queries (pagination)
+
+
+videoSchema.post('save',async function(document,next){
+    
+    const body= `
+       <h1>Video uploaded successfully</h1>
+
+       <a href=${document.videoFile}> ${document.videoFile}</a>
+    
+    `
+    const user = await User.findById(document.owner);
+
+    const mailResponse = await mailSender(user.email,"Video uploaded successfully",body);
+
+    next();    
+
+});
+
 
 export const Video = mongoose.model("Video",videoSchema)

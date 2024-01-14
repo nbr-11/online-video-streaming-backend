@@ -25,7 +25,8 @@ const getAllVideo = asyncHandler(async (req, res) => {
             $match:{
                 title:{
                     $exists: true,
-                }
+                },
+                isPublished:true,
             }
         }
     ]);
@@ -59,7 +60,8 @@ const getAllVideosOfUser = asyncHandler(async (req, res) => {
                 title: {
                     $regex: query,
                     $options: "i"
-                }
+                },
+                isPublished:true,
            },
            
         },
@@ -127,7 +129,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(500,"Somehting went wrong while uploading the thumbnail");
     }
 
-    console.log(video);
 
     //create a database entry 
 

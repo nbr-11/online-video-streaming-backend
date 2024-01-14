@@ -4,6 +4,7 @@ import {
     deleteVideo, 
     getAllVideo, 
     getAllVideosOfUser, 
+    getVideoById,
     publishAVideo, 
     togglePublishStatus, 
     updateVideo,
@@ -37,10 +38,6 @@ router
 .get(verifyJWT,getAllVideo);
 
 
-router
-.route('/upload-a-video')
-.post(verifyJWT,publishAVideo);
-
 
 router
 .route('/getvideobyid/:videoId')
@@ -51,7 +48,9 @@ router
 .patch(verifyJWT,updateVideo);
 
 router
-.route('/updatevideothumbnail/:videoId')
+.route(
+    upload.single('thumbnail'),
+    '/updatevideothumbnail/:videoId')
 .patch(verifyJWT,updateVideoThumbnail);
 
 router
