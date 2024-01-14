@@ -149,10 +149,10 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
 
-    const user = await Like.aggregate([
+    const userLikedVideo = await Like.aggregate([
         {
             $match:{
-                likedBy: user._id,
+                likedBy: req?.user._id,
                 video:{
                     $exists: true,
                 }
@@ -166,7 +166,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
            .json(
                 new ApiResponse(
                     200,
-                    user,
+                    userLikedVideo,
                     "Liked video fetched of the logged in user"
                 )
            )
