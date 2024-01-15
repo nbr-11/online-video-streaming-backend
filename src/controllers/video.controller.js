@@ -9,8 +9,6 @@ import { Comment } from "../models/comment.model.js"
 import { Like } from "../models/like.model.js"
 
 
-
-
 const getAllVideo = asyncHandler(async (req, res) => {
      
     const {page=1,limit=10} = req.query;
@@ -416,8 +414,6 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 });
 
-
-
 export {
     getAllVideosOfUser,
     publishAVideo,
@@ -428,4 +424,5 @@ export {
     updateVideoThumbnail,
     getAllVideo,
 }
+
 
