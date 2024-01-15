@@ -205,7 +205,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
            .json(
                 new ApiResponse(
                     200,
-                    updatePlaylist,
+                    updatedPlaylist,
                     "Video removed from the playlist"
                 )
            );
@@ -295,3 +295,4 @@ export {
     deletePlaylist,
     updatePlaylist
 }
+
