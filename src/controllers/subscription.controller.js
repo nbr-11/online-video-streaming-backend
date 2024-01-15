@@ -10,6 +10,14 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     const {channelId} = req.params
     // TODO: toggle subscription
 
+    if(!channelId){
+        throw new ApiError(401,"ChannelId is required");
+    }
+    if(!mongoose.isValidObjectId(channelId)){
+        throw new ApiError(401,"ChannelId is invalid");
+
+    }
+
     const response = await Subscription.aggregate([
         {
             $match:{
@@ -49,6 +57,14 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     const {channelId} = req.params
+
+    if(!channelId){
+        throw new ApiError(401,"ChannelId is required");
+    }
+    if(!mongoose.isValidObjectId(channelId)){
+        throw new ApiError(401,"ChannelId is invalid");
+
+    }
 
     const subscribers = await Subscription.aggregate([
         {
@@ -102,6 +118,14 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params 
+
+    if(!subscriberId){
+        throw new ApiError(401,"ChannelId is required");
+    }
+    if(!mongoose.isValidObjectId(subscriberId)){
+        throw new ApiError(401,"ChannelId is invalid");
+
+    }
 
     const channels = await Subscription.aggregate([
         {
