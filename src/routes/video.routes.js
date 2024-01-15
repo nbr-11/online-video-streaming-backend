@@ -8,7 +8,8 @@ import {
     publishAVideo, 
     togglePublishStatus, 
     updateVideo,
-    updateVideoThumbnail} from "../controllers/video.controller.js";
+    updateVideoThumbnail
+} from "../controllers/video.controller.js";
 
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -36,7 +37,6 @@ router
 router
 .route('/get-all-video')
 .get(verifyJWT,getAllVideo);
-
 
 
 router
