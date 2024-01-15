@@ -56,7 +56,7 @@ const getAllVideosOfUser = asyncHandler(async (req, res) => {
     const aggregator = Video.aggregate([
         {
            $match:{
-                owner: new mongoose.Types.ObjectId("65a2693f938a7fd010d0ee92"),  
+                owner: new mongoose.Types.ObjectId(userId),  
                 title: {
                     $regex: query,
                     $options: "i"
