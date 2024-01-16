@@ -290,10 +290,11 @@ const updateVideoThumbnail = asyncHandler(async (req,res) => {
         throw new ApiError(401,"videoId is invalid");
     }
 
-    const thumbnailLocalFilePath = req.file?.path ;
+    const newThumbnailLocalFilePath = req.file?.path ;
 
     //upload new thumbnailLocalFile cloudinary
-    const newThumbnail = await uploadOnCloudinary(thumbnailLocalFilePath);
+    
+    const newThumbnail = await uploadOnCloudinary(newThumbnailLocalFilePath);
 
     if(!newThumbnail){
         throw new ApiError(500,"Something went wrong while updating");
@@ -302,10 +303,8 @@ const updateVideoThumbnail = asyncHandler(async (req,res) => {
     //delete the old thumbnail from cloudinary
         
     const video = await Video.findById(videoId);
-    //logic to get the public id
-    const temp = video.url.split("/");
-    const publicId = temp[temp.length-1].split(".")[0];
-    await deleteFromCLoudinary(publicId);
+    
+    await deleteFromCLoudinary(video.thumbnail);
 
     //update the video in the db
 
@@ -314,7 +313,7 @@ const updateVideoThumbnail = asyncHandler(async (req,res) => {
                                     videoId,
                                     {
                                         $set: {
-                                            
+                                            thumbnail:newThumbnail.url,
                                         }
                                     },
                                     {
@@ -395,6 +394,9 @@ const deleteVideo = asyncHandler(async (req, res) => {
     if(!video._id.equals(req.user._id)){
         throw new ApiError(403,"You are not authorized to delete this video");
     }
+
+    //delete the file from cloudinary 
+    await deleteFromCLoudinary()
 
     //delete the video
 
