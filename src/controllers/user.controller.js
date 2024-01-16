@@ -657,20 +657,17 @@ const getWatchHistory =  asyncHandler(async (req, res) => {
 });
 
 
+// deleting a user account 
 
-// const deleteUserAccount = asyncHandler(async (req,res) => {
-//    // verify the otp
+//deleting all the subscriptions  done 
+// deleting all the comments made by him and also likes on those comment done 
+// deleting all the tweets and likes on the tweets (we can use pre deleteMany hook to remove data from cloudinary)
+// deleting all the videos and likes and comment on the videos (we can use the pre deleteMany hook to remove data from cludinary )
+// delete all the playlists
+// finally delete the user account
 
+// this is the overall algo for delete user
 
-//    // delete all the videos owned by user
-
-
-//    // delete the user
-
-//    // clear cookies 
-
-//    // send the response
-// })
 
 
 

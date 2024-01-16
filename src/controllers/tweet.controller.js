@@ -5,6 +5,7 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import {User} from "../models/user.model.js"
 import {Tweet} from "../models/tweet.model.js"
 import mongoose from "mongoose";
+import { Like } from "../models/like.model.js";
 
 const createTweet = asyncHandler( async( req, res) => {
     const {content} = req.body;
@@ -185,6 +186,8 @@ const deleteTweet = asyncHandler(async (req, res) => {
     const deletedTweet = await Tweet.findByIdAndDelete(tweetId);
 
     //send the response;
+
+    await Like.deleteMany({tweet:deletedTweet._id});
 
     return res 
            .status(200)
