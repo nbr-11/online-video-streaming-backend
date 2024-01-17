@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 import { Otp } from "../models/otp.model.js";
 import otpGenerator from "otp-generator";
 import mongoose from "mongoose";
+import {Subscription} from "../models/subscription.model.js";
+import {Comment} from "../models/comment.model.js";
 
 const generateAccessAndRefreshToken = async (userId) =>{
     try{
@@ -657,16 +659,40 @@ const getWatchHistory =  asyncHandler(async (req, res) => {
 });
 
 
-// deleting a user account 
+// !incomplete
+const deleteAUserAccount  = asyncHandler(async (req, res) => {
+    
+   const {otp} = req.body;
 
-//deleting all the subscriptions  done 
-// deleting all the comments made by him and also likes on those comment done 
-// deleting all the tweets and likes on the tweets (we can use pre deleteMany hook to remove data from cloudinary)
-// deleting all the videos and likes and comment on the videos (we can use the pre deleteMany hook to remove data from cludinary )
-// delete all the playlists
-// finally delete the user account
+   const otpInDb = await Otp.find({email:req.user.email}).sort({createdAt: -1}).limit(1);
 
-// this is the overall algo for delete user
+   if(!otpInDb.otp){
+      throw new ApiError(403, "otp has expired");
+   }
+
+   if(otpInDb[0].otp !== otp){
+      throw new ApiError(403,"otp is inavlid");
+   }
+
+   //verified otp
+
+
+   //start the account deletion process
+
+   //comments
+
+   // 1.delete the user comments (made by the user) 
+
+   const deletedComments =  await Comment.find({owner:req.user._id});
+   // 2. delete the likes on those comments
+
+   console.log(deletedComments);
+
+   return res.sendStatus(200);
+
+
+});
+
 
 
 
@@ -685,5 +711,6 @@ export {
    updateEmail,
    getUserChannelProfile,
    getWatchHistory,
+   deleteAUserAccount
 };
 
