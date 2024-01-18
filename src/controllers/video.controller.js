@@ -4,7 +4,7 @@ import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
-import {deleteFromCLoudinary, uploadOnCloudinary} from "../utils/cloudinary.js"
+import {deleteFromCLoudinary, deleteVideoFromCLoudinary, uploadOnCloudinary} from "../utils/cloudinary.js"
 import { Comment } from "../models/comment.model.js"
 import { Like } from "../models/like.model.js"
 
@@ -395,10 +395,15 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(403,"You are not authorized to delete this video");
     }
 
-    //delete the file from cloudinary 
-    await deleteFromCLoudinary()
+    // delete the thumbnail from cloudinary 
 
-    //delete the video
+    await deleteFromCLoudinary(video.thumbnail);
+
+    // deleting the videoFile from cloudinary
+    await deleteVideoFromCLoudinary(video.videoFile);
+
+
+    //delete the video from the DB along with the video delete the comments on the video and the lik on the videos
 
     await Video.findByIdAndDelete(videoId);
     await Comment.deleteMany({video:videoId});

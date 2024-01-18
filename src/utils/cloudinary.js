@@ -47,7 +47,9 @@ const deleteFromCLoudinary = async(cloudinaryUrl) => {
     const publicId = temp[temp.length-1].split(".")[0];
 
     //deleting the media from cloudinary
-    const response = await cloudinary.uploader.destroy(publicId);
+    const response = await cloudinary.uploader.destroy(publicId,{
+      resource_type:"image",
+    });
 
     return response;
 
@@ -56,5 +58,26 @@ const deleteFromCLoudinary = async(cloudinaryUrl) => {
   }
 };
 
-export {uploadOnCloudinary, deleteFromCLoudinary};
+const deleteVideoFromCLoudinary = async(cloudinaryUrl) => {
+  try{
+
+    if(!cloudinaryUrl) return null;
+
+    //extracting the publicId from the url
+    const temp = cloudinaryUrl.split("/");
+    const publicId = temp[temp.length-1].split(".")[0];
+
+    //deleting the media from cloudinary
+    const response = await cloudinary.uploader.destroy(publicId,{
+      resource_type:"video",
+    });
+
+    return response;
+
+  } catch(error){
+    return null
+  }
+};
+
+export {uploadOnCloudinary, deleteFromCLoudinary, deleteVideoFromCLoudinary};
 
