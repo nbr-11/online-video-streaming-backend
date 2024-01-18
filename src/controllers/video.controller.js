@@ -421,6 +421,67 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 });
 
+
+//add video to user watch history (in this controller we will handle the case to incease the view count on each video)
+
+//this will be a secured route
+const addVideoToUserWatchHistory  = asyncHandler(async (req, res) => {
+     
+    const {videoId} = req.body;
+
+    if(!videoId){
+        throw new ApiError(401,"videoId is required");
+    }
+
+    if(!mongoose.isValidObjectId(videoId)){
+        throw new ApiError(401,"the specified objectId is not valid");
+    }
+
+    //validations done main logic 
+
+    const updatedUser = await User
+                                .findByIdAndUpdate(
+                                    req.user_id,
+                                    {
+                                        $push:{
+                                            watchHistory: videoId
+                                        }
+                                    },
+                                    {
+                                        new: true,
+                                    }
+
+                                );
+    
+    const updatedVideo= await Video 
+                               .findByIdAndUpdate(
+                                    req.user_id,
+                                    {
+                                        $inc:{
+                                            views:1,
+                                        }
+                                    },
+                                    {
+                                        new: true,
+                                    }
+                               );
+
+    return res 
+           .status(200)
+           .json(
+                new ApiResponse(
+                    200,
+                    {
+                        user:updatedUser,
+                        video:updatedVideo
+                    },
+                    "Video added to user's watch history"
+                )
+           )
+
+});
+
+
 export {
     getAllVideosOfUser,
     publishAVideo,
@@ -430,6 +491,7 @@ export {
     togglePublishStatus,
     updateVideoThumbnail,
     getAllVideo,
+    addVideoToUserWatchHistory,
 }
 
 

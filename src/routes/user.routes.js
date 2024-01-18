@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { changeCurrentPassord, 
+import { 
+    changeCurrentPassord, 
     getCurrentUser, 
     getUserChannelProfile, 
     getWatchHistory, 
@@ -97,5 +98,6 @@ router
 .delete(verifyJWT, deleteUser);
 
 
-
 export default router;
+
+
