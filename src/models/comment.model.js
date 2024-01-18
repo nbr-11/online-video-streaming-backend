@@ -1,5 +1,6 @@
 import mongoose, {Schema} from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+import { Like } from "./like.model";
 
 const commentSchema = new Schema(
     {
@@ -21,6 +22,13 @@ const commentSchema = new Schema(
         timestamps: true,
     }
 );
+
+
+commentSchema.pre('deleteMany', async function(next){
+    await Like.deleteMany({comment:this._id});
+
+    next();
+});
 
 commentSchema.plugin(mongooseAggregatePaginate);
 

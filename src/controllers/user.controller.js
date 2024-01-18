@@ -9,6 +9,7 @@ import otpGenerator from "otp-generator";
 import mongoose from "mongoose";
 import {Subscription} from "../models/subscription.model.js";
 import {Comment} from "../models/comment.model.js";
+import { Like } from "../models/like.model.js";
 
 const generateAccessAndRefreshToken = async (userId) =>{
     try{
@@ -659,43 +660,39 @@ const getWatchHistory =  asyncHandler(async (req, res) => {
 });
 
 
-// !incomplete
-const deleteAUserAccount  = asyncHandler(async (req, res) => {
-    
+const deleteUser = asyncHandler(async (req, res) => {
+
    const {otp} = req.body;
 
-   const otpInDb = await Otp.find({email:req.user.email}).sort({createdAt: -1}).limit(1);
-
-   if(!otpInDb.otp){
-      throw new ApiError(403, "otp has expired");
+   if(!otp){
+      throw new ApiError(401,"otp is required");
    }
 
-   if(otpInDb[0].otp !== otp){
-      throw new ApiError(403,"otp is inavlid");
+   const otpInDB = await Otp.find({email:req.user.email}).sort({createdAt: -1}).limit(1);
+
+   if(!otpInDB?.[0].otp){
+      throw new ApiError(403,"The otp hax expired");
    }
 
-   //verified otp
+   if(!otpInDB?.[0].otp !== otp){
+      throw new ApiError(403,"Otp is invalid");
+   }
 
+   const deleteUser = await User.deleteOne({username:req.user.username});
 
-   //start the account deletion process
+   return res  
+          .status(200)
+          .json(
+               new ApiResponse(
+                  200,
+                  {},
+                  "All the user data has been deleted",
+               )
+          );
 
-   //comments
-
-   // 1.delete the user comments (made by the user) 
-
-   const deletedComments =  await Comment.find({owner:req.user._id});
-   // 2. delete the likes on those comments
-
-   console.log(deletedComments);
-
-   return res.sendStatus(200);
 
 
 });
-
-
-
-
 
 export {
    registerUser,
@@ -711,6 +708,8 @@ export {
    updateEmail,
    getUserChannelProfile,
    getWatchHistory,
-   deleteAUserAccount
+   deleteUser,
 };
+
+
 

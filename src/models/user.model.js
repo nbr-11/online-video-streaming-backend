@@ -1,6 +1,10 @@
 import mongoose, {Schema} from "mongoose";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { Video } from "./video.model";
+import { Like } from "./like.model";
+import { Tweet } from "./tweet.model";
+import { Comment } from "./comment.model";
 
 const userSchema = new Schema(
     {
@@ -50,6 +54,19 @@ const userSchema = new Schema(
         timestamps:true,
     }
 );
+
+
+
+userSchema.pre('deleteOne', async function(next){
+
+    await Comment.deleteMany({owner:this._id});
+    await Like.deleteMany({owner:this._id});
+    await Video.deleteMany({owner:this._id});
+    await Tweet.deleteMany({owner:this._id});
+
+    next();
+});
+
 
 
 userSchema.pre('save', async function (next){
