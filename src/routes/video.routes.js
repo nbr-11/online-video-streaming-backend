@@ -1,6 +1,7 @@
 import express from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { 
+    addVideoToUserWatchHistory,
     deleteVideo, 
     getAllVideo, 
     getAllVideosOfUser, 
@@ -60,6 +61,13 @@ router
 router
 .route('/deletevideo/:videoId')
 .delete(verifyJWT,deleteVideo);
+
+
+router 
+.route('/addvideotowatchhistory/:videoId')
+.patch(verifyJWT,addVideoToUserWatchHistory);
+
+
 
 export default router;
 
