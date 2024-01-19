@@ -88,7 +88,7 @@ const deleteAllVideoByUser = async (userId) => {
       await deleteVideoFromCLoudinary(video.videoFile);
    });
 
-   await allVideosOwnedByUser.deleteMany({owner:userId});
+   await Video.deleteMany({owner:userId});
 
    
 } 
@@ -772,6 +772,10 @@ const deleteUser = asyncHandler(async (req, res) => {
    await deleteAllSubscriptionsOfUser(req.user._id);
    await deleteAllVideoByUser(req.user._id);
    await deleteAllPlaylist(req.user._id);
+
+
+   await deleteFromCLoudinary(req.user.avatar);
+   await deleteFromCLoudinary(req.user.coverImage);
 
    await User.findByIdAndDelete(req.user._id);
   

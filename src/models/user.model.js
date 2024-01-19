@@ -57,19 +57,6 @@ const userSchema = new Schema(
 
 
 
-userSchema.pre('remove', async function(next){
-    
-    console.log("console log");
-    const deletedComment = await Comment.deleteMany({owner:this._id});
-    const deletedLikes = await Like.deleteMany({owner:this._id});
-    const deletedVideos = await Video.deleteMany({owner:this._id});
-    const deletedTweets = await Tweet.deleteMany({owner:this._id});
-    console.log("this is me");
-    console.log(deletedComment, deletedLikes, deletedVideos, deletedTweets);
-    next();
-});
-
-
 userSchema.pre('save', async function (next){
     
     if(!this.isModified("password")){
