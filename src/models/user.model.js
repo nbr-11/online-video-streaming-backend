@@ -1,10 +1,10 @@
 import mongoose, {Schema} from "mongoose";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { Video } from "./video.model";
-import { Like } from "./like.model";
-import { Tweet } from "./tweet.model";
-import { Comment } from "./comment.model";
+import { Video } from "./video.model.js";
+import { Like } from "./like.model.js";
+import { Tweet } from "./tweet.model.js";
+import { Comment } from "./comment.model.js";
 
 const userSchema = new Schema(
     {
@@ -57,16 +57,17 @@ const userSchema = new Schema(
 
 
 
-userSchema.pre('deleteOne', async function(next){
-
-    await Comment.deleteMany({owner:this._id});
-    await Like.deleteMany({owner:this._id});
-    await Video.deleteMany({owner:this._id});
-    await Tweet.deleteMany({owner:this._id});
-
+userSchema.pre('remove', async function(next){
+    
+    console.log("console log");
+    const deletedComment = await Comment.deleteMany({owner:this._id});
+    const deletedLikes = await Like.deleteMany({owner:this._id});
+    const deletedVideos = await Video.deleteMany({owner:this._id});
+    const deletedTweets = await Tweet.deleteMany({owner:this._id});
+    console.log("this is me");
+    console.log(deletedComment, deletedLikes, deletedVideos, deletedTweets);
     next();
 });
-
 
 
 userSchema.pre('save', async function (next){
@@ -83,6 +84,7 @@ userSchema.methods.isPasswordCorrect = async function(password){
 
     return await bcrypt.compare(password, this.password);
 }
+
 
 userSchema.methods.generateAccessToken = function(){
     return jwt.sign(

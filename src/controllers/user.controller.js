@@ -1,7 +1,7 @@
 import {asyncHandler} from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { deleteFromCLoudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCLoudinary, deleteVideoFromCLoudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { Otp } from "../models/otp.model.js";
@@ -10,6 +10,92 @@ import mongoose from "mongoose";
 import {Subscription} from "../models/subscription.model.js";
 import {Comment} from "../models/comment.model.js";
 import { Like } from "../models/like.model.js";
+import { Tweet } from "../models/tweet.model.js";
+import { Video } from "../models/video.model.js";
+import { Playlist } from "../models/playlist.model.js";
+
+
+const deleteAllCommentsByUser = async(userId) => {
+   
+  // get all the comments by the user 
+
+  const commentsByUser = await Comment.find({owner:userId});
+
+  // delete all the likes on these comments comments
+
+  commentsByUser.forEach(async (comment)=>{
+   const commentId = comment._id;
+   await Like.deleteMany({comment:commentId});
+  });
+
+  await Comment.deleteMany({owner:userId});
+
+};
+
+const deleteAllTweetByUser = async (userId) => {
+
+   //get all the tweets by the user
+
+   const tweetsByUser = await Tweet.find({owner:userId});
+
+   // deleting all the likes on these tweets
+   tweetsByUser.forEach( async (tweet) => {
+      const tweetId = tweet._id;
+      await Like.deleteMany({tweet:tweetId});
+   })
+
+   // deleting all the tweet
+
+   await Tweet.deleteMany({owner:userId});
+};
+
+
+const deleteAllSubscriptionsOfUser = async (userId) => {
+
+   await Subscription.deleteMany({
+      $or:[{subscriber:userId},{channel:userId}]
+   });
+}
+
+const deleteAllCommentsOnaVideo = async (videoId) => {
+   // get all the comments on a video
+
+  const commentsOnVideo = await Comment.find({video:videoId});
+
+  // delete all the likes on these comments comments
+
+  commentsOnVideo.forEach(async (comment)=>{
+   const commentId = comment._id;
+   await Like.deleteMany({comment:commentId});
+  });
+
+  await Comment.deleteMany({video:videoId});
+}
+
+const deleteAllLikesOnaVideo = async(videoId) => {
+   await Like.deleteMany({video:videoId});
+}
+
+const deleteAllVideoByUser = async (userId) => {
+
+   const allVideosOwnedByUser = await Video.find({owner: userId});
+
+   allVideosOwnedByUser.forEach(async (video)=>{
+      await deleteAllCommentsOnaVideo(video._id);
+      await deleteAllLikesOnaVideo(video._id);
+
+      await deleteFromCLoudinary(video.thumbnail);
+      await deleteVideoFromCLoudinary(video.videoFile);
+   });
+
+   await allVideosOwnedByUser.deleteMany({owner:userId});
+
+   
+} 
+
+const deleteAllPlaylist = async (userId) => {
+   await Playlist.deleteMany({owner:userId});
+}
 
 const generateAccessAndRefreshToken = async (userId) =>{
     try{
@@ -663,6 +749,7 @@ const getWatchHistory =  asyncHandler(async (req, res) => {
 const deleteUser = asyncHandler(async (req, res) => {
 
    const {otp} = req.body;
+   
 
    if(!otp){
       throw new ApiError(401,"otp is required");
@@ -670,26 +757,37 @@ const deleteUser = asyncHandler(async (req, res) => {
 
    const otpInDB = await Otp.find({email:req.user.email}).sort({createdAt: -1}).limit(1);
 
-   if(!otpInDB?.[0].otp){
-      throw new ApiError(403,"The otp hax expired");
+   if(!otpInDB?.[0]?.otp){
+      throw new ApiError(403,"The otp has expired");
    }
 
-   if(!otpInDB?.[0].otp !== otp){
+
+   if(otpInDB[0].otp !== otp){
       throw new ApiError(403,"Otp is invalid");
    }
 
-   const deleteUser = await User.deleteOne({username:req.user.username});
 
-   return res  
-          .status(200)
-          .json(
+   await deleteAllCommentsByUser(req.user._id);
+   await deleteAllTweetByUser(req.user._id);
+   await deleteAllSubscriptionsOfUser(req.user._id);
+   await deleteAllVideoByUser(req.user._id);
+   await deleteAllPlaylist(req.user._id);
+
+   await User.findByIdAndDelete(req.user._id);
+  
+
+  
+  return res 
+         .status(200)
+         .json(
                new ApiResponse(
                   200,
-                  {},
-                  "All the user data has been deleted",
-               )
-          );
+                  {
 
+                  },
+                  "user data deleted",
+               )
+         );
 
 
 });

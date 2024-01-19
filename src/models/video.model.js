@@ -3,6 +3,7 @@ import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 import {mailSender} from "../utils/mailSender.js"
 import { User } from "./user.model.js";
 import { Like } from "./like.model.js";
+import { Comment } from "./comment.model.js";
 import { deleteFromCLoudinary, deleteVideoFromCLoudinary } from "../utils/cloudinary.js";
 
 const videoSchema = new Schema(
@@ -44,17 +45,6 @@ const videoSchema = new Schema(
         timestamps: true,
     }
 )
-
-
-
-videoSchema.pre('deleteMany', async function (next){
-    await Like.deleteMany({video:this._id});
-    await Comment.deleteMany({video:this._id});
-    await deleteFromCLoudinary(this.thumbnail);
-    await deleteVideoFromCLoudinary(this.videoFile);
-
-    next();
-});
 
 
 videoSchema.plugin(mongooseAggregatePaginate); //allow us to write aggrgation queries (pagination)
