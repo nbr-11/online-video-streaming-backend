@@ -47,7 +47,20 @@ const userSchema = new Schema(
             required: [true, "Password is required"]
         },
         refreshToken: {
-            type: String
+            type: [
+                {
+                    type: String
+                }
+            ],
+            validate: [arrayLimit, 'exceeds the limit of 4']
+        },
+        accessToken: {
+            type: [
+                {
+                    type: String,
+                }
+            ],
+            validate: [arrayLimit, 'exceeds the limit of 4']
         }
     },
     {
@@ -55,6 +68,11 @@ const userSchema = new Schema(
     }
 );
 
+
+
+function arrayLimit(val){
+    return val.length<=4;
+}
 
 
 userSchema.pre('save', async function (next){
