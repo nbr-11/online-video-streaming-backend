@@ -10,22 +10,38 @@ export const verifyJWT  = asyncHandler(async(req, res, next) => {
         const token =  req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","");
             
         if(!token){
-             throw new ApiError(401,"Unauthorized request");
+             throw new ApiError(403,"Unauthorized request");
         }
-        
+
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        
-        const user = await User.findById(decodedToken?._id).select("-password -refreshToken");
-    
+        const user = await User.findById(decodedToken?._id).select("-password"); 
+
         if(!user){
             throw new ApiError(401,"Invalid Access Token");
         }
     
         req.user = user;
 
+        if(!(token in req.user.accessToken)){
+            throw new ApiError(403,"token not valid");
+        }
+
         next();
 
     } catch (error) {
+
+        const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","");
+
+        if(token in req.user.accessToken){
+            await User.findByIdAndUpdate(
+                req.user._id,
+                {
+                    $pull:{
+                        accessToken:token
+                    }
+                }
+            );
+        };
         throw new ApiError(401,error ||"Invalid access Token");
     }
    
